@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연세보눔 콘텐츠 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F2EC;
+    --card: #FFFFFF;
+    --primary: #4A6741;
+    --primary-light: #6B8F62;
+    --primary-pale: #EAF0E8;
+    --accent: #B8956A;
+    --accent-pale: #F5EDE0;
+    --text: #252520;
+    --text-mid: #5A5A52;
+    --text-muted: #9A9A90;
+    --border: #E0DDD5;
+    --shadow: 0 2px 12px rgba(74,103,65,0.08), 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-hover: 0 8px 32px rgba(74,103,65,0.14), 0 2px 8px rgba(0,0,0,0.06);
+    --cat-music: #4A7B8F; --cat-music-pale: #E8F2F5;
+    --cat-heart: #A0634A; --cat-heart-pale: #F5EDE8;
+    --cat-info:  #6B5A8F; --cat-info-pale:  #EDE8F5;
+    --cat-daily: #7A6040; --cat-daily-pale: #F5EFE5;
+    --cat-local: #3D7A60; --cat-local-pale: #E5F2EC;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--primary);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  }
+  .header-inner {
+    max-width: 1280px; margin: 0 auto;
+    padding: 18px 40px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    flex-wrap: wrap;
+  }
+  .logo-block { display: flex; flex-direction: column; gap: 2px; }
+  .logo-en { font-family: 'DM Serif Display', serif; font-style: italic; color: rgba(255,255,255,0.45); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+  .logo-kr { font-family: 'Noto Serif KR', serif; font-weight: 700; color: #FFFFFF; font-size: 21px; letter-spacing: -0.02em; }
+  .logo-sub { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 300; letter-spacing: 0.04em; margin-top: 2px; }
+  .header-right { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .stat-pill {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 100px; padding: 7px 16px;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+  }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 18px; color: #FFF; line-height: 1; }
+  .stat-label { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 300; letter-spacing: 0.06em; white-space: nowrap; }
+  .updated-badge {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 400;
+    padding: 6px 14px; border-radius: 100px; letter-spacing: 0.03em; white-space: nowrap;
+  }
+
+  /* ── MAIN ── */
+  .main { max-width: 1280px; margin: 0 auto; padding: 32px 40px 64px; }
+
+  /* ── FILTER ── */
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 11px; color: var(--text-muted); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-right: 4px; }
+  .filter-btn {
+    border: 1.5px solid var(--border); background: var(--card); color: var(--text-mid);
+    font-family: 'Noto Sans KR', sans-serif; font-size: 13px; font-weight: 500;
+    padding: 7px 16px; border-radius: 100px; cursor: pointer; transition: all 0.18s ease; outline: none;
+  }
+  .filter-btn:hover { border-color: var(--primary-light); color: var(--primary); background: var(--primary-pale); }
+  .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; box-shadow: 0 2px 8px rgba(74,103,65,0.25); }
+  .filter-btn[data-cat="음악치료"].active { background: var(--cat-music); border-color: var(--cat-music); }
+  .filter-btn[data-cat="마음공감"].active { background: var(--cat-heart); border-color: var(--cat-heart); }
+  .filter-btn[data-cat="심리정보"].active { background: var(--cat-info);  border-color: var(--cat-info); }
+  .filter-btn[data-cat="센터일상"].active { background: var(--cat-daily); border-color: var(--cat-daily); }
+  .filter-btn[data-cat="지역소통"].active { background: var(--cat-local); border-color: var(--cat-local); }
+
+  /* ── STATUS FILTER ── */
+  .status-bar { display: flex; gap: 8px; margin-bottom: 24px; align-items: center; }
+  .status-btn {
+    border: 1.5px solid var(--border); background: transparent; color: var(--text-muted);
+    font-family: 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 5px 14px; border-radius: 100px; cursor: pointer; transition: all 0.15s ease; outline: none;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .status-btn:hover { border-color: var(--text-mid); color: var(--text-mid); }
+  .status-btn.active.all    { border-color: var(--text); color: var(--text); background: var(--bg); }
+  .status-btn.active.draft  { border-color: var(--accent); color: var(--accent); background: var(--accent-pale); }
+  .status-btn.active.approved { border-color: var(--primary); color: var(--primary); background: var(--primary-pale); }
+  .status-btn.active.posted { border-color: #888; color: #666; background: #F0F0EE; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-draft { background: var(--accent); }
+  .dot-approved { background: var(--primary); }
+  .dot-posted { background: #AAA; }
+
+  /* ── GRID ── */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-bottom: 44px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card); border-radius: 16px; padding: 22px 24px 18px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: fadeUp 0.35s ease both;
+    position: relative; overflow: hidden;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+  .card.hidden { display: none !important; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .card[data-cat="음악치료"] { border-left: 3px solid var(--cat-music); }
+  .card[data-cat="마음공감"] { border-left: 3px solid var(--cat-heart); }
+  .card[data-cat="심리정보"] { border-left: 3px solid var(--cat-info); }
+  .card[data-cat="센터일상"] { border-left: 3px solid var(--cat-daily); }
+  .card[data-cat="지역소통"] { border-left: 3px solid var(--cat-local); }
+
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; flex: 1; }
+  .cat-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.03em; white-space: nowrap;
+  }
+  .cat-badge.음악치료 { background: var(--cat-music-pale); color: var(--cat-music); }
+  .cat-badge.마음공감 { background: var(--cat-heart-pale); color: var(--cat-heart); }
+  .cat-badge.심리정보 { background: var(--cat-info-pale);  color: var(--cat-info); }
+  .cat-badge.센터일상 { background: var(--cat-daily-pale); color: var(--cat-daily); }
+  .cat-badge.지역소통 { background: var(--cat-local-pale); color: var(--cat-local); }
+  .day-badge {
+    font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 100px;
+    background: var(--accent-pale); color: var(--accent); border: 1px solid rgba(184,149,106,0.22); white-space: nowrap;
+  }
+  .week-chip {
+    font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 100px;
+    background: var(--bg); color: var(--text-muted); border: 1px solid var(--border);
+  }
+
+  /* Status badge */
+  .status-badge {
+    font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 100px; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .status-badge.draft    { background: var(--accent-pale); color: var(--accent); border: 1px solid rgba(184,149,106,0.25); }
+  .status-badge.approved { background: var(--primary-pale); color: var(--primary); border: 1px solid rgba(74,103,65,0.2); }
+  .status-badge.posted   { background: #F0F0EE; color: #888; border: 1px solid #DDDDD8; }
+
+  .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .btn-icon {
+    background: none; border: 1.5px solid var(--border); border-radius: 10px;
+    width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text-muted); transition: all 0.15s ease; outline: none; flex-shrink: 0;
+  }
+  .btn-icon:hover { border-color: var(--primary-light); color: var(--primary); background: var(--primary-pale); }
+  .btn-icon.copied { border-color: var(--primary); color: var(--primary); background: var(--primary-pale); }
+  .btn-icon svg { width: 14px; height: 14px; }
+
+  /* Status toggle button */
+  .btn-status {
+    font-family: 'Noto Sans KR', sans-serif; font-size: 11px; font-weight: 600;
+    border: 1.5px solid var(--border); border-radius: 10px; height: 34px; padding: 0 12px;
+    cursor: pointer; color: var(--text-muted); background: none; transition: all 0.15s ease; outline: none;
+    white-space: nowrap;
+  }
+  .btn-status:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-pale); }
+
+  .card-title { font-family: 'Noto Serif KR', serif; font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .card-divider { height: 1px; background: var(--border); opacity: 0.6; }
+  .card-content { font-size: 13.5px; line-height: 1.9; color: var(--text-mid); white-space: pre-line; flex: 1; font-weight: 400; }
+
+  .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid var(--border); }
+  .card-date { font-size: 11px; color: var(--text-muted); }
+
+  /* Posted overlay */
+  .card.posted { opacity: 0.65; }
+  .card.posted::after {
+    content: '발행완료';
+    position: absolute; top: 14px; right: 14px;
+    background: #555; color: white; font-size: 10px; font-weight: 600;
+    padding: 3px 8px; border-radius: 6px; letter-spacing: 0.05em;
+  }
+
+  /* ── SCHEDULE ── */
+  .schedule-section { background: var(--card); border-radius: 20px; padding: 28px 32px; box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 24px; }
+  .section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .section-title { font-family: 'Noto Serif KR', serif; font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; display: block; width: 4px; height: 16px; background: var(--primary); border-radius: 4px; }
+  .section-tabs { display: flex; gap: 6px; }
+  .week-tab {
+    font-family: 'Noto Sans KR', sans-serif; font-size: 12px; font-weight: 600;
+    border: 1.5px solid var(--border); background: transparent; color: var(--text-muted);
+    padding: 4px 14px; border-radius: 100px; cursor: pointer; transition: all 0.15s ease; outline: none;
+  }
+  .week-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .section-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 22px; padding-left: 12px; }
+  .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .tl-day { display: flex; flex-direction: column; gap: 6px; }
+  .tl-label { font-size: 12px; font-weight: 700; color: var(--text-mid); text-align: center; padding: 5px 0; border-radius: 8px; background: var(--bg); letter-spacing: 0.04em; }
+  .tl-item {
+    border-radius: 10px; padding: 9px 10px; font-size: 11.5px; line-height: 1.4;
+    font-weight: 500; text-align: center; cursor: default; transition: transform 0.15s; border: 1.5px solid transparent;
+  }
+  .tl-item:hover { transform: scale(1.03); }
+  .tl-item.음악치료 { background: var(--cat-music-pale); color: var(--cat-music); border-color: rgba(74,123,143,0.2); }
+  .tl-item.마음공감 { background: var(--cat-heart-pale); color: var(--cat-heart); border-color: rgba(160,99,74,0.2); }
+  .tl-item.심리정보 { background: var(--cat-info-pale);  color: var(--cat-info);  border-color: rgba(107,90,143,0.2); }
+  .tl-item.센터일상 { background: var(--cat-daily-pale); color: var(--cat-daily); border-color: rgba(122,96,64,0.2); }
+  .tl-item.지역소통 { background: var(--cat-local-pale); color: var(--cat-local); border-color: rgba(61,122,96,0.2); }
+  .tl-empty { border-radius: 10px; padding: 9px 10px; background: var(--bg); text-align: center; font-size: 11px; color: var(--text-muted); border: 1.5px dashed var(--border); }
+
+  /* ── GUIDE SECTION ── */
+  .guide-section { background: var(--card); border-radius: 20px; padding: 28px 32px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 18px; }
+  .guide-card { background: var(--bg); border-radius: 12px; padding: 18px 20px; border: 1px solid var(--border); }
+  .guide-step { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 28px; color: var(--primary); opacity: 0.4; line-height: 1; margin-bottom: 8px; }
+  .guide-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .guide-desc { font-size: 12px; line-height: 1.7; color: var(--text-mid); }
+  .guide-desc code { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: var(--primary); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--text); color: white; padding: 11px 22px; border-radius: 100px;
+    font-size: 13px; font-weight: 500; z-index: 9999;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── EMPTY STATE ── */
+  .empty { grid-column: 1/-1; text-align: center; padding: 52px 20px; color: var(--text-muted); font-size: 13px; display: none; }
+  .empty.visible { display: block; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .header-inner { padding: 14px 20px; }
+    .main { padding: 24px 20px 48px; }
+    .timeline { grid-template-columns: repeat(3, 1fr); }
+    .header-right { gap: 8px; }
+    .stat-pill { display: none; }
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-block">
+      <span class="logo-en">Yonsei Bonum Counseling Center</span>
+      <span class="logo-kr">연세보눔상담코칭센터</span>
+      <span class="logo-sub">Threads 콘텐츠 대시보드</span>
+    </div>
+    <div class="header-right">
+      <div class="stat-pill">
+        <span class="stat-num" id="statTotal">—</span>
+        <span class="stat-label">총 포스팅</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="statApproved">—</span>
+        <span class="stat-label">승인완료</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="statPosted">—</span>
+        <span class="stat-label">발행완료</span>
+      </div>
+      <span class="updated-badge" id="updatedBadge">로딩 중...</span>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- CATEGORY FILTER -->
+  <div class="filter-bar">
+    <span class="filter-label">카테고리</span>
+    <button class="filter-btn active" data-cat="전체">전체</button>
+    <button class="filter-btn" data-cat="음악치료">🎵 음악치료</button>
+    <button class="filter-btn" data-cat="마음공감">💛 마음공감</button>
+    <button class="filter-btn" data-cat="심리정보">📚 심리정보</button>
+    <button class="filter-btn" data-cat="센터일상">🏠 센터일상</button>
+    <button class="filter-btn" data-cat="지역소통">📍 지역소통</button>
+  </div>
+
+  <!-- STATUS FILTER -->
+  <div class="status-bar">
+    <span class="filter-label">상태</span>
+    <button class="status-btn active all" data-status="전체">전체</button>
+    <button class="status-btn" data-status="draft"><span class="status-dot dot-draft"></span>초안</button>
+    <button class="status-btn" data-status="approved"><span class="status-dot dot-approved"></span>승인완료</button>
+    <button class="status-btn" data-status="posted"><span class="status-dot dot-posted"></span>발행완료</button>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards-grid" id="cardsGrid">
+    <div class="empty" id="emptyState">해당 조건의 포스팅이 없어요.</div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="schedule-section">
+    <div class="section-head">
+      <div class="section-title">발행 스케줄</div>
+      <div class="section-tabs">
+        <button class="week-tab active" data-week="1" onclick="switchWeek(1)">1주차</button>
+        <button class="week-tab" data-week="2" onclick="switchWeek(2)">2주차</button>
+      </div>
+    </div>
+    <p class="section-desc">화~토 하루 1개 발행 · 오전 8–9시 또는 오후 9–10시</p>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+  <!-- HOW TO ADD -->
+  <div class="guide-section">
+    <div class="section-title">글 추가하는 방법</div>
+    <div class="guide-grid">
+      <div class="guide-card">
+        <div class="guide-step">01</div>
+        <div class="guide-title">posts.json 파일 열기</div>
+        <div class="guide-desc">GitHub 저장소에서 <code>posts.json</code> 파일을 클릭하고 우측 연필 아이콘(✏️)으로 편집 모드 진입</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-step">02</div>
+        <div class="guide-title">포스팅 객체 추가</div>
+        <div class="guide-desc">맨 끝 항목 뒤에 <code>,{ ... }</code> 형태로 새 포스팅 추가. id는 이전 번호 +1, status는 <code>"draft"</code>로 시작</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-step">03</div>
+        <div class="guide-title">저장 (Commit changes)</div>
+        <div class="guide-desc">초록색 <code>Commit changes</code> 버튼 클릭 → 1~2분 후 이 페이지 새로고침하면 바로 반영</div>
+      </div>
+      <div class="guide-card">
+        <div class="guide-step">04</div>
+        <div class="guide-title">상태 변경</div>
+        <div class="guide-desc">각 카드의 <code>승인</code> 버튼으로 draft → approved 변경 가능. 발행 후엔 status를 <code>"posted"</code>로 수정</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast">클립보드에 복사됐어요 ✓</div>
+
+<script>
+const CAT_ICONS = { 음악치료:'🎵', 마음공감:'💛', 심리정보:'📚', 센터일상:'🏠', 지역소통:'📍' };
+const STATUS_LABELS = { draft:'초안', approved:'승인완료', posted:'발행완료' };
+const DAY_ORDER = { 월요일:1, 화요일:2, 수요일:3, 목요일:4, 금요일:5, 토요일:6 };
+
+let allPosts = [];
+let activeCat = '전체';
+let activeStatus = '전체';
+let activeWeek = 1;
+// In-memory status overrides (resets on refresh; to persist, edit posts.json)
+let statusOverrides = {};
+
+async function loadPosts() {
+  try {
+    const r = await fetch('posts.json?v=' + Date.now());
+    allPosts = await r.json();
+  } catch(e) {
+    allPosts = [];
+  }
+  updateStats();
+  renderCards();
+  renderTimeline(activeWeek);
+}
+
+function getStatus(post) {
+  return statusOverrides[post.id] ?? post.status ?? 'draft';
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = allPosts.length;
+  document.getElementById('statApproved').textContent = allPosts.filter(p => getStatus(p) === 'approved').length;
+  document.getElementById('statPosted').textContent = allPosts.filter(p => getStatus(p) === 'posted').length;
+
+  const dates = allPosts.map(p => p.createdAt).sort().reverse();
+  if (dates[0]) {
+    document.getElementById('updatedBadge').textContent = '최근 업데이트 ' + dates[0];
+  }
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  const empty = document.getElementById('emptyState');
+
+  // clear old cards
+  Array.from(grid.querySelectorAll('.card')).forEach(c => c.remove());
+
+  let filtered = allPosts.filter(p => {
+    const catOk = activeCat === '전체' || p.category === activeCat;
+    const statusOk = activeStatus === '전체' || getStatus(p) === activeStatus;
+    return catOk && statusOk;
+  });
+
+  if (filtered.length === 0) { empty.classList.add('visible'); return; }
+  empty.classList.remove('visible');
+
+  filtered.forEach((post, i) => {
+    const status = getStatus(post);
+    const card = document.createElement('div');
+    card.className = 'card' + (status === 'posted' ? ' posted' : '');
+    card.dataset.cat = post.category;
+    card.dataset.id = post.id;
+    card.style.animationDelay = (i * 0.05) + 's';
+
+    const statusBadgeHtml = status !== 'posted'
+      ? `<span class="status-badge ${status}">${STATUS_LABELS[status]}</span>`
+      : '';
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-meta">
+          <span class="cat-badge ${post.category}">${CAT_ICONS[post.category] || ''} ${post.category}</span>
+          <span class="day-badge">${post.day}</span>
+          <span class="week-chip">${post.week}주차</span>
+          ${statusBadgeHtml}
+        </div>
+        <div class="card-actions">
+          ${status === 'draft' ? `<button class="btn-status" onclick="cycleStatus(${post.id})">승인</button>` : ''}
+          ${status === 'approved' ? `<button class="btn-status" onclick="cycleStatus(${post.id})">발행완료</button>` : ''}
+          <button class="btn-icon copy-btn" onclick="copyPost(this)" title="복사">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-title">${post.title}</div>
+      <div class="card-divider"></div>
+      <div class="card-content">${escHtml(post.content)}</div>
+      <div class="card-footer">
+        <span class="card-date">${post.createdAt}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function cycleStatus(id) {
+  const post = allPosts.find(p => p.id === id);
+  if (!post) return;
+  const cur = getStatus(post);
+  const next = cur === 'draft' ? 'approved' : cur === 'approved' ? 'posted' : 'draft';
+  statusOverrides[id] = next;
+  updateStats();
+  renderCards();
+  renderTimeline(activeWeek);
+  showToast(next === 'approved' ? '승인 완료!' : next === 'posted' ? '발행 완료로 변경됐어요 ✓' : '초안으로 되돌렸어요');
+}
+
+function renderTimeline(week) {
+  const days = ['월요일','화요일','수요일','목요일','금요일','토요일'];
+  const labels = ['월','화','수','목','금','토'];
+  const weekPosts = allPosts.filter(p => p.week === week);
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = '';
+  days.forEach((day, i) => {
+    const dp = weekPosts.filter(p => p.day === day);
+    const col = document.createElement('div');
+    col.className = 'tl-day';
+    col.innerHTML = `<div class="tl-label">${labels[i]}</div>`;
+    if (dp.length === 0) {
+      col.innerHTML += `<div class="tl-empty">–</div>`;
+    } else {
+      dp.forEach(p => {
+        col.innerHTML += `<div class="tl-item ${p.category}" title="${p.title}">${CAT_ICONS[p.category] || ''}<br>${p.title}</div>`;
+      });
+    }
+    tl.appendChild(col);
+  });
+}
+
+function switchWeek(w) {
+  activeWeek = w;
+  document.querySelectorAll('.week-tab').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.week) === w);
+  });
+  renderTimeline(w);
+}
+
+// FILTER
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    renderCards();
+  });
+});
+
+document.querySelectorAll('.status-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.status-btn').forEach(b => {
+      b.classList.remove('active', 'all', 'draft', 'approved', 'posted');
+    });
+    btn.classList.add('active', btn.dataset.status === '전체' ? 'all' : btn.dataset.status);
+    activeStatus = btn.dataset.status;
+    renderCards();
+  });
+});
+
+// COPY
+function copyPost(btn) {
+  const content = btn.closest('.card').querySelector('.card-content').textContent.trim();
+  navigator.clipboard.writeText(content).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>`;
+    showToast('클립보드에 복사됐어요 ✓');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = content;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('클립보드에 복사됐어요 ✓');
+  });
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+loadPosts();
+</script>
+</body>
+</html>
