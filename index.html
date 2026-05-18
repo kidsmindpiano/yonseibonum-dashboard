@@ -177,6 +177,13 @@
   .card-divider { height: 1px; background: var(--border); opacity: 0.6; }
   .card-content { font-size: 13.5px; line-height: 1.9; color: var(--text-mid); white-space: pre-line; flex: 1; font-weight: 400; }
 
+  .card-info {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 9px 12px; border-radius: 9px;
+    background: var(--primary-pale); border: 1px solid rgba(74,103,65,0.12);
+    font-size: 12px; font-weight: 500; color: var(--primary);
+  }
+  .card-info span { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
   .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 4px; border-top: 1px solid var(--border); }
   .card-date { font-size: 11px; color: var(--text-muted); }
 
@@ -437,6 +444,10 @@ function renderCards() {
       <div class="card-title">${post.title}</div>
       <div class="card-divider"></div>
       <div class="card-content">${escHtml(post.content)}</div>
+      <div class="card-info">
+        <span>📞 031-994-2459</span>
+        <span>📍 야당역</span>
+      </div>
       <div class="card-footer">
         <span class="card-date">${post.createdAt}</span>
       </div>
